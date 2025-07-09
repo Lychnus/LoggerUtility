@@ -118,5 +118,6 @@ extension ContentView {
 
 // MARK: - Preview
 #Preview {
+    // MARK: - Logging will not work on `Preview`, it only works on runtime. Please use simulator.
     ContentView()
 }
