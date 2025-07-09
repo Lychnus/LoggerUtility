@@ -72,14 +72,14 @@ public protocol SystemLogger {
 // MARK: - Protocol Extension
 extension SystemLogger {
     
-    /// Provides access to a `Logger` instance with default context of the main bundle and automatic file / function category.
+    /// Provides access to a `Logger` instance with default context of the main bundle and `Development` category.
     ///
     /// - Returns: A configured optional `Logger` instance.
     ///
     /// - Note: The return value is optional to allow suppression of logging in certain environments.
     /// Developers should use optional chaining (e.g., `log(context: _)?.info(...)`) to avoid unintended output during testing.
     public func logger() -> Logger? {
-        logger(context: .default())
+        logger(context: .development())
     }
 
     /// Retrieves logs written by the current process using the default time range, without filtering by severity or context.
@@ -243,14 +243,17 @@ public enum LogBundle {
 
 /// This enum represents the category of the log.
 public enum LogCategory {
-    case fileCategory(file: String = #file, function: String = #function)
+    case development
+    case production
     case someCategory(String)
 
     /// Readable textual description for the Logger category.
     internal var textualDescription: String {
         switch self {
-            case .fileCategory(let file, let function):
-                return "File: \((file as NSString).lastPathComponent), Function: \(function)"
+            case .development:
+                return "Development"
+            case .production:
+                return "Production"
             case .someCategory(let identifier):
                 return identifier
         }
@@ -310,15 +313,13 @@ public struct LogContext {
         return category.textualDescription
     }
 
-    /// Creates a default log context using the main bundle and automatic file / function category.
+    /// Creates a default log context using the main bundle and `Development` category.
     ///
     /// - Parameters:
     ///   - bundle: The logging bundle source (defaults to main bundle).
-    ///   - file: File name for automatic category resolution.
-    ///   - function: Function name for automatic category resolution.
     /// - Returns: An instance of `LogContext` configured with defaults.
-    public static func `default`(bundle: LogBundle = .mainBundle, file: String = #file, function: String = #function) -> LogContext {
-        .init(bundle: bundle, category: .fileCategory(file: file, function: function))
+    public static func development(bundle: LogBundle = .mainBundle) -> LogContext {
+        .init(bundle: bundle, category: .development)
     }
 }
 
@@ -346,7 +347,7 @@ internal class AppLogger: SystemLogger {
 // MARK: - Protocol Conformance
 extension AppLogger {
 
-    internal func logger(context: LogContext = .default()) -> Logger? {
+    internal func logger(context: LogContext = .development()) -> Logger? {
         // Eliminate the log behavior in test environment.
         if DevTools.isTesting { return nil }
         

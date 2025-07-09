@@ -20,7 +20,6 @@ struct LogBundleTests {
         let bundle = LogBundle.mainBundle
         let description = bundle.textualDescription
         
-        // Should return bundle identifier or fallback
         #expect(description == Bundle.main.bundleIdentifier ?? "Unknown Bundle Identifier")
     }
     
@@ -38,14 +37,21 @@ struct LogBundleTests {
 @Suite("AppLogger-LogCategory Tests")
 struct LogCategoryTests {
     
-    @Test("File category generates correct description")
-    func testFileCategoryDescription() {
-        let testFile = "/path/to/TestFile.swift"
-        let testFunction = "testFunction()"
-        let category = LogCategory.fileCategory(file: testFile, function: testFunction)
+    @Test("Development category returns correct description")
+    func testDevelopmentCategoryDescription() {
+        let category = LogCategory.development
         let description = category.textualDescription
         
-        let expectedDescription = "File: TestFile.swift, Function: testFunction()"
+        let expectedDescription = "Development"
+        #expect(description == expectedDescription)
+    }
+    
+    @Test("Production category returns correct description")
+    func testProductionCategoryDescription() {
+        let category = LogCategory.production
+        let description = category.textualDescription
+        
+        let expectedDescription = "Production"
         #expect(description == expectedDescription)
     }
     
@@ -56,16 +62,6 @@ struct LogCategoryTests {
         let description = category.textualDescription
         
         #expect(description == categoryName)
-    }
-    
-    @Test("File category with default parameters")
-    func testFileCategoryWithDefaults() {
-        let category = LogCategory.fileCategory()
-        let description = category.textualDescription
-        
-        // Should contain "File:" and "Function:" in the description
-        #expect(description.contains("File:"))
-        #expect(description.contains("Function:"))
     }
 }
 
@@ -131,13 +127,12 @@ struct LogTimeRangeTests {
 @Suite("AppLogger-LogContext Tests")
 struct LogContextTests {
     
-    @Test("Default context creates with main bundle and file category")
+    @Test("Default context creates with main bundle and development category")
     func testDefaultContext() {
-        let context = LogContext.default()
+        let context = LogContext.development()
         
         #expect(context.bundleTextualDescription == Bundle.main.bundleIdentifier ?? "Unknown Bundle Identifier")
-        #expect(context.categoryTextualDescription.contains("File:"))
-        #expect(context.categoryTextualDescription.contains("Function:"))
+        #expect(context.categoryTextualDescription == "Development")
     }
     
     @Test("Custom context with specific bundle and category")
@@ -148,15 +143,6 @@ struct LogContextTests {
         
         #expect(context.bundleTextualDescription == "com.test.app")
         #expect(context.categoryTextualDescription == "TestCategory")
-    }
-    
-    @Test("Default context with custom parameters")
-    func testDefaultContextWithCustomParameters() {
-        let customBundle = LogBundle.someBundle("com.custom.bundle")
-        let context = LogContext.default(bundle: customBundle, file: "CustomFile.swift", function: "customFunction")
-        
-        #expect(context.bundleTextualDescription == "com.custom.bundle")
-        #expect(context.categoryTextualDescription == "File: CustomFile.swift, Function: customFunction")
     }
 }
 
