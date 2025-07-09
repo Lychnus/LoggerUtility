@@ -425,7 +425,7 @@ extension AppLogger {
 }
 
 /// This extension will be used on exporting Log severity level.
-fileprivate extension OSLogEntryLog.Level {
+public extension OSLogEntryLog.Level {
     
     /// Textual description of Log's severity level.
     var description: String {
