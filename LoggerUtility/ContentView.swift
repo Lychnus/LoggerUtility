@@ -11,7 +11,7 @@ import OSLog
 // MARK: - Implementation
 struct ContentView {
     
-    @State private var logs: [OSLogEntryLog] = []
+    @State private var logs: [SystemLoggerEntry] = []
     @State private var isLoading: Bool = false
 }
 
@@ -92,14 +92,14 @@ extension ContentView {
     @ViewBuilder
     private func logButton(_ title: String, level: LogLevel, message: String) -> some View {
         Button(title) {
-            let logger = DevTools.logging.logger()
-
+            let logger = DevTools.logging.development()
+            
             switch level {
-            case .debug: logger?.debug("\(message)")
-            case .info:  logger?.info("\(message)")
-            case .notice: logger?.notice("\(message)")
-            case .error: logger?.error("\(message)")
-            case .fault: logger?.fault("\(message)")
+                case .debug: logger.debug("\(message)")
+                case .info:  logger.info("\(message)")
+                case .notice: logger.notice("\(message)")
+                case .error: logger.error("\(message)")
+                case .fault: logger.fault("\(message)")
             }
         }
     }
@@ -107,9 +107,9 @@ extension ContentView {
     private func loadLogs() async {
         isLoading = true
         defer { isLoading = false }
-
+        
         do {
-            logs = try DevTools.logging.retrieveLogs(range: .lastMinutes(5), context: LogContext.development())
+            logs = try DevTools.logging.developmentLogs()
         } catch {
             logs = []
         }
